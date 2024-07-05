@@ -2,7 +2,10 @@ import { useState } from "react";
 import "./filter.scss";
 import { useSearchParams } from "react-router-dom";
 
+
+// Filter component for handling search and filter parameters
 function Filter() {
+  // State to manage search parameters
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState({
     type: searchParams.get("type") || "",
@@ -13,6 +16,7 @@ function Filter() {
     bedroom: searchParams.get("bedroom") || "",
   });
 
+  // Handle input changes and update the query state
   const handleChange = (e) => {
     setQuery({
       ...query,
@@ -20,6 +24,7 @@ function Filter() {
     });
   };
 
+  // Handle filter button click and update search parameters
   const handleFilter = () => {
     setSearchParams(query);
   };

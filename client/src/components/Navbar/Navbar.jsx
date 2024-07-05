@@ -4,14 +4,19 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { useNotificationStore } from "../../lib/notificationStore";
 
+// Navbar component for navigation and user profile display
 function Navbar() {
+  // State to manage the mobile menu open/close state
   const [open, setOpen] = useState(false);
 
+  // Context for the current user
   const { currentUser } = useContext(AuthContext);
 
+  // Functions to fetch notifications and get the notification count
   const fetch = useNotificationStore((state) => state.fetch);
   const number = useNotificationStore((state) => state.number);
 
+  // Fetch notifications if there is a current user
   if(currentUser) fetch();
 
   return (

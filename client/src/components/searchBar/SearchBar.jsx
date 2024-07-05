@@ -2,9 +2,11 @@ import { useState } from "react";
 import "./searchBar.scss";
 import { Link } from "react-router-dom";
 
+// SearchBar component for handling search queries
 const types = ["buy", "rent"];
 
 function SearchBar() {
+  // State to manage the search query
   const [query, setQuery] = useState({
     type: "buy",
     city: "",
@@ -12,10 +14,12 @@ function SearchBar() {
     maxPrice: 0,
   });
 
+  // Switch the type of search (buy/rent)
   const switchType = (val) => {
     setQuery((prev) => ({ ...prev, type: val }));
   };
 
+  // Handle input changes and update the query state
   const handleChange = (e) => {
     setQuery((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };

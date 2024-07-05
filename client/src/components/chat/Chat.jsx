@@ -6,22 +6,31 @@ import { format } from "timeago.js";
 import { SocketContext } from "../../context/SocketContext";
 import { useNotificationStore } from "../../lib/notificationStore";
 
+// Chat component which handles displaying and sending messages
 function Chat({ chats }) {
+  // State for the current chat
   const [chat, setChat] = useState(null);
+
+  // Contexts for the current user and socket connection
   const { currentUser } = useContext(AuthContext);
   const { socket } = useContext(SocketContext);
 
+  // Reference to the end of the messages for scrolling
   const messageEndRef = useRef();
 
+  // Function to decrease notifications
   const decrease = useNotificationStore((state) => state.decrease);
 
+  // Scroll to the end of messages when the chat changes
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
+  // Handle opening a chat
   const handleOpenChat = async (id, receiver) => {
     try {
       const res = await apiRequest("/chats/" + id);
+      // If the message is not seen by the current user, decrease notification count
       if (!res.data.seenBy.includes(currentUser.id)) {
         decrease();
       }
@@ -31,17 +40,22 @@ function Chat({ chats }) {
     }
   };
 
+  // Handle sending a message
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Get the message text from the form
     const formData = new FormData(e.target);
     const text = formData.get("text");
 
     if (!text) return;
     try {
+      // Send the message via API
       const res = await apiRequest.post("/messages/" + chat.id, { text });
+      // Update the chat with the new message
       setChat((prev) => ({ ...prev, messages: [...prev.messages, res.data] }));
       e.target.reset();
+      // Notify the receiver via socket
       socket.emit("sendMessage", {
         receiverId: chat.receiver.id,
         data: res.data,
@@ -51,9 +65,11 @@ function Chat({ chats }) {
     }
   };
 
+  // Handle receiving a new message via socket
   useEffect(() => {
     const read = async () => {
       try {
+        // Mark chat as read
         await apiRequest.put("/chats/read/" + chat.id);
       } catch (err) {
         console.log(err);
@@ -63,11 +79,13 @@ function Chat({ chats }) {
     if (chat && socket) {
       socket.on("getMessage", (data) => {
         if (chat.id === data.chatId) {
+          // Update chat with the new message
           setChat((prev) => ({ ...prev, messages: [...prev.messages, data] }));
           read();
         }
       });
     }
+    // Cleanup socket listener
     return () => {
       socket.off("getMessage");
     };
